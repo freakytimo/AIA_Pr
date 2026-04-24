@@ -44,7 +44,7 @@ void matmul_looporder(const float* A, const float* B, float* C, int M, int N, in
     /* TODO: implement your best loop ordering here, replace below*/
     for (int i = 0; i < M; i++) {
         for (int k = 0; k < K; k++) {
-            float a = A[i * K + k]; // Wird in ein Register geladen
+            float a = A[i * K + k]; 
             for (int j = 0; j < N; j++) {
                 C[i * N + j] += a * B[k * N + j];
             }
