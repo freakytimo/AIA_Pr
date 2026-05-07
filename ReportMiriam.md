@@ -1,7 +1,7 @@
 # Lab Report – Matrix Multiplication on CPU
 **Course:** AI Accelerators (AIA)
 **Lab:** Praktikum 1
-**Team members:** _(Timo (Notebook made for my PC specs), Miriam, Hamzeh)_
+**Team members:** _(Timo, Miriam, Hamzeh)_
 **Date:** _(18.04.2026)_
 
 ---
@@ -9,6 +9,9 @@
 ## Task 1 – System Characterisation
 
 > Fill in the details of your machine. Use tools such as `lscpu`, `lstopo`, `/proc/cpuinfo`.
+
+On MacOS: sysctl -a | grep -E "hw\.|machdep\.cpu"
+
 
 | Property | Value |
 |---|---|
@@ -78,16 +81,16 @@ Effectively **no speedup** was observed across all flag combinations — all res
 
 | Tile size | N=512 (GFLOP/s) | N=1024 (GFLOP/s) | N=4096 (GFLOP/s) |
 |---|---|---|---|
-| 32  | | | |
-| 64  | | | |
-| 128 | | | |
-| 256 | | | |
+| 32  | 99.86 | 95.76 | |
+| 64  | 121.74 | 115.60 | |
+| 128 | 161.15 | 145.32 | |
+| 256 | 127.93 | 149.83 | |
 
-**Best tile size:** `___`
+**Best tile size:** `128`
 
 **Why does this tile size work best for your machine?**
 
-_(your explanation here)_
+My L1 cache has 64 KB so a tile size of 128 KB leads to a spillover to L2 while a tile size of 64 KB fits perfectly. 128 KB is still faster than 64 KB because the L2 cache is verly large and fast and JB=128 has a higher arithmetic intensity; for each cache miss you do 4x more FLOPs 
 
 ---
 
@@ -105,7 +108,7 @@ _(your explanation here)_
 
 **Does throughput scale linearly with threads? Why / why not?**
 
-_(your answer here)_
+No, because threads share the memory bus and the caches
 
 ---
 
@@ -113,27 +116,30 @@ _(your answer here)_
 
 **Is your implementation compute-bound or memory-bound?** Justify with arithmetic intensity (FLOPs / bytes).
 
-_(your answer here)_
+Naive: clearly memory-bound (AI ≈ 0.25, far left of ridge point)
+Tiled (JB=128 or 256): AI of 32–64 FLOPs/byte is well above the ridge point → compute-bound
+
 
 **Comparison vs. PyTorch (N=1024):**
 
 | Implementation | GFLOP/s | % of PyTorch |
 |---|---|---|
-| Naive C | | |
-| Best optimised C | | |
-| PyTorch (CPU) | | 100.0% |
+| Naive C | 2.06 | |
+| Best optimised C | 157.32 | |
+| PyTorch (CPU) | 1631 | 100.0% |
 
 **What is the gap and why does it exist?**
 
-_(your answer here)_
+157 GFLOPS (the parallel C) vs. 1631 GFLOPS (PyTorch) — ~10× difference.
+The gap exists because hardware acceleration (AMX) and hand-written BLAS are simply inaccessible to plain C with OpenMP. 
 
 ---
 
 ## Task 7 – Key Takeaways
 
-_Write 3–5 sentences summarising the most important lessons learned from this lab._
-
-_(your summary here)_
+I got to know how my MacBook works a little bit more.
+- how to implement a matrix multiplication
+- how to calculate FLOPs
 
 ---
 
