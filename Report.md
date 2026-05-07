@@ -41,10 +41,14 @@ Calculation: 4 cores × 5.0 GHz × 8 floats × 2 FMA units × 2 operations = 640
 | j-k-i | 27.25 | 30.88 | 24.90 | DNF |
 | k-i-j | 31.29 | 27.90 | 26.52 | DNF |
 
-**Best ordering found:** `i-k-j` (Theoretically & practically before compiler intervention)
+**Best ordering found:** `k-i-j` (Closely followed by `i-k-j` and `j-k-i`)
 
 **Why does this ordering perform best?**
-The `i-k-j` ordering performs best because it maximizes spatial locality. In C, matrices are stored in row-major order. The innermost `j` loop accesses arrays `B` and `C` sequentially (stride-1), allowing the CPU to load full cache lines perfectly. *(Note: The benchmarks show similarly high performance for j-k-i and k-i-j because modern GCC compilers automatically detect bad access patterns and perform loop-interchange optimizations in the background).*
+The most critical factor for performance in C (which uses row-major memory layout) is having the `j` index in the innermost loop. This ensures a stride-1 memory access pattern for arrays `B` and `C`, allowing the CPU to load full cache lines perfectly. 
+
+Both `i-k-j` and `k-i-j` share this optimal inner loop structure, which is why their performance is remarkably similar (around 24-31 GFLOP/s). On my specific hardware (Intel i7-1360P), `k-i-j` edges out `i-k-j` slightly, likely due to how the specific hardware prefetchers and the L2/L3 cache hierarchy handle the outer loop iterations. 
+
+*(Note: The surprisingly high performance of `j-k-i` suggests that the modern GCC compiler recognized the sub-optimal access pattern and performed automatic loop-interchange optimizations in the background).*
 
 ---
 
