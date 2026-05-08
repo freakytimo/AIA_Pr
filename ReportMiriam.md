@@ -100,11 +100,11 @@ My L1 cache has 64 KB so a tile size of 128 KB leads to a spillover to L2 while 
 
 | Threads | N=1024 (GFLOP/s) | Speedup vs 1 Thread |
 |---|---|---|
-| 1 | | 1.00× |
-| 2 | | |
-| 4 | | |
-| 8 | | |
-| 10 (max threads) | | |
+| 1 | 32.79 | 1.00× |
+| 2 | 63.62 | 1.94x |
+| 4 | 122.95 | 3.75x |
+| 8 | 141.70 | 4.32x |
+| 10 (max threads) | 134.96 | 4.12x |
 
 **Does throughput scale linearly with threads? Why / why not?**
 
